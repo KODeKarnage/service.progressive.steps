@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+    <category label="JBLive Reminder">
+        <setting id="homeicon"          label="Icon in home" type="bool" default="false"/>
+        <setting id="xpos"              label="32021" type="slider" default="true"/>
+
+        
+        <setting label="32023" type="bool" id="upgrade_system" default="false"/>
+        <setting label="32024" type="bool" id="upgrade_apt" default="false"/>
+    </category>
+</settings>
