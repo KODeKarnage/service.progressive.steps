@@ -19,6 +19,40 @@
 
 import xbmc
 
+def log():
+    pass
+
+def grab_JBL_iCal():
+    '''
+    grabs the iCal file from JB website and saves in local addon data folder
+    '''
+    pass
+
+
+def parse_JBL_iCal():
+    '''
+    strips out the relevant data from the iCal file and saves it in a dict
+    '''
+    pass
+
+
+def _daemon():
+    '''
+    stays alive and checks the time to see whether reminders are needed
+        a) takes down notification after prescribed time
+        b) updates time since start of show
+    '''
+    pass
+
+
+def initiate_reminder():
+    '''
+        a) post icon from the home screen
+        b) post notification
+        c) post modal reminder
+        d) play sound
+    '''
+    pass
 
 
 if __name__ == "__main__":
