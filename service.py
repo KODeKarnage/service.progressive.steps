@@ -100,31 +100,37 @@ class Steps_Monitor(xbmc.Monitor):
 
                                 now = datetime.datetime.now()
 
-                                if not off_set[1] and off_set[2]:
-                                    ''' if there are seconds but no minutes then assume a small step'''
+                                step = off_set[1] * 60 + off_set[2]
 
-                                    if off_set > 0:
+                                log([now,step], 'appending')
 
-                                        self.click_action.append((now,'SF'))
-                                        log('SF')
+                                self.click_action.append((now,step))
 
-                                    else:
+                                # if not off_set[1] and off_set[2]:
+                                #     ''' if there are seconds but no minutes then assume a small step'''
 
-                                        self.click_action.append((now,'SB'))
-                                        log('SB')
+                                #     if off_set > 0:
 
-                                if off_set[1] and not off_set[2]:
-                                    ''' if there are minutes but no seconds then assume a big step'''
+                                #         self.click_action.append((now,'SF'))
+                                #         log('SF')
 
-                                    if off_set > 0:
+                                #     else:
 
-                                        self.click_action.append((now,'BF'))
-                                        log('BF')
+                                #         self.click_action.append((now,'SB'))
+                                #         log('SB')
 
-                                    else:
+                                # if off_set[1] and not off_set[2]:
+                                #     ''' if there are minutes but no seconds then assume a big step'''
 
-                                        self.click_action.append((now,'BB'))
-                                        log('BB')
+                                #     if off_set > 0:
+
+                                #         self.click_action.append((now,'BF'))
+                                #         log('BF')
+
+                                #     else:
+
+                                #         self.click_action.append((now,'BB'))
+                                #         log('BB')
 
 
 class Main:
@@ -154,16 +160,14 @@ class Main:
 
     def get_set(self):
         ''' updates and integrates the addon settings '''
+
         global logging
         global maxt
         global delay
+
         logging    = True if __setting__('logging') == 'true' else False
         maxt  = float(__setting__('maxt')) * 1000000
         delay = float(__setting__('delay')) * 1000000
-
-
-        standard     = 1
-        standard_big = 10
 
         s2 = int(float(__setting__('2s')))
         s3 = int(float(__setting__('3s')))
@@ -174,13 +178,9 @@ class Main:
         b4 = int(float(__setting__('4b')))
         b5 = int(float(__setting__('5b')))
 
-        small_steps_raw = [s2, s3, s4, s5]
-        big_steps_raw   = [b2, b3, b4, b5]
+        steps_raw = [s2, s3, s4, s5, b2, b3, b4, b5]
 
-        small = [x - standard     for x in small_steps_raw]
-        big   = [x - standard_big for x in big_steps_raw]
-
-        self.steps = small + big
+        self.steps  = [x * 60 for x in steps_raw]
 
         log(self.steps, 'steps')
 
@@ -193,33 +193,38 @@ class Main:
         # calculate the delta
         # clear the click action
 
-        action = self.click_action[-1][1]
+        rec_step = self.click_action[-1][1]
         count = len(self.click_action)
 
         del self.click_action[:]
 
         if count > 1:
 
-            log(action, '_action action')
+            log(rec_step, '_action rec_step')
             log(count, '_action count')
 
             direction = 1
             base = 0
 
-            if action[-1] == 'B':
+            if rec_step < 0 :
                 direction = -1
 
-            if action[0] == 'B':
+            if rec_step[0] > 60:
+                ''' steps above 60 seconds are considered big else small '''
                 base = 4
 
-            delta = self.steps[min(base + count - 1, base + 3)] * direction * 60
+            delta = (self.steps[min(base + count - 1, base + 3)] * direction) - (count * rec_step)
 
             log(delta, 'delta')
 
             if delta:
+
                 log(xbmc.Player().getTime(), 'got time')
+
                 resume_time = xbmc.Player().getTime() + delta
+
                 xbmc.Player().seekTime(resume_time) 
+
                 log('seeked')
 
 

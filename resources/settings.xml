@@ -12,10 +12,9 @@
         <setting label="4 Big Steps" type="slider" id="4b" default="30" range="1,90" option="int" />
         <setting label="5 Big Steps" type="slider" id="5b" default="60" range="1,90" option="int" />
 
-        <setting label="Max time between clicks" type="slider" id="maxt" default="0.5" range="0,1" />
-        <setting label="Delay before activating" type="slider" id="delay" default="1" range="0,3" />
+        <setting label="Max time between clicks" type="slider" id="maxt"  default="0.5" range="0,3" option="float"/>
+        <setting label="Delay before activating" type="slider" id="delay" default="1.0" range="0,3" option="float"/>
         <setting label="Enable Debug Logging" type="bool" id="logging" default="true"/>
-
 
     </category> 
 
