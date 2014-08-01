@@ -9,7 +9,7 @@
     </requires>
     <extension point="xbmc.service" library="service.py" start="login"/>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en">Progressive steps steps progressively</summary>
+        <summary lang="en">You know that button which jumps a video forward by 30 seconds? This addon simply means that if you click it twice quickly it will jump ahead by 3 minutes. Or 10 minutes. Or whatever you decide it should be in the Settings. It also works for 3, 4 or 5 clicks.</summary>
         <description lang="en">.</description>
         <disclaimer lang="en">.</disclaimer>
         <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>

@@ -1,19 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <settings>
-    <category label="Small">
-        
-        <setting label="2 Small Steps (minutes)" type="slider" id="2s" default="3" range="1,90" option="int" />
-        <setting label="3 Small Steps" type="slider" id="3s" default="10" range="1,90" option="int" />
-        <setting label="4 Small Steps" type="slider" id="4s" default="30" range="1,90" option="int" />
-        <setting label="5 Small Steps" type="slider" id="5s" default="60" range="1,90" option="int" />
-        
-        <setting label="2 Big Steps" type="slider" id="2b" default="3" range="1,90" option="int" />
-        <setting label="3 Big Steps" type="slider" id="3b" default="10" range="1,90" option="int" />
-        <setting label="4 Big Steps" type="slider" id="4b" default="30" range="1,90" option="int" />
-        <setting label="5 Big Steps" type="slider" id="5b" default="60" range="1,90" option="int" />
+    <category label="Small Steps">
 
-        <setting label="Max time between clicks" type="slider" id="maxt"  default="0.5" range="0,3" option="float"/>
-        <setting label="Delay before activating" type="slider" id="delay" default="1.0" range="0,3" option="float"/>
+        <setting type="lsep" label="Small Step Sizing (minutes)"/>
+        <setting label="Two Clicks" type="bool" id="2sb" default="true"/>
+        <setting label=""  type="slider" id="2s" default="3" range="1,90" option="int"  visible="eq(-1,true)"/>
+        <setting label="Three Clicks" type="bool" id="3sb" default="true"/>
+        <setting label="" type="slider" id="3s" default="10" range="1,90" option="int"  visible="eq(-1,true)"/>
+        <setting label="Four Clicks" type="bool" id="4sb" default="true"/>
+        <setting label="" type="slider" id="4s" default="30" range="1,90" option="int"  visible="eq(-1,true)"/>
+        <setting label="Five Clicks" type="bool" id="5sb" default="false"/>
+        <setting label="" type="slider" id="5s" default="60" range="1,90" option="int"  visible="eq(-1,true)"/>
+    
+    </category> 
+<!--     <category label="Big Steps">
+
+        <setting type="lsep" label="Big Step Sizing (minutes)"/>
+        <setting label="Enable" type="bool" id="logging" default="false"/>
+
+        <setting label="Two Clicks"   type="slider" id="2b" default="20" range="1,90" option="int" enabled="eq(-1,true)"/>
+        <setting label="Three Clicks" type="slider" id="3b" default="30" range="1,90" option="int" enabled="eq(-2,true)" />
+        <setting label="Four Clicks"  type="slider" id="4b" default="60" range="1,90" option="int" enabled="eq(-3,true)" />
+        <setting label="Five Clicks"  type="slider" id="5b" default="90" range="1,90" option="int" enabled="eq(-4,true)" />
+        
+    </category>  -->
+    <category label="Other">
+
+        <setting type="lsep" label="Other timings (seconds)"/>
+
+        <setting label="Max time between clicks" type="slider" id="maxt"  default="0.5" range="0.1,0.1,3.0" option="float"/>
+        <setting label="Delay before time shift" type="slider" id="delay" default="1.0" range="0.1,0.1,3.0" option="float"/>
+        
+        <setting type="lsep" label=""/>
+        
         <setting label="Enable Debug Logging" type="bool" id="logging" default="true"/>
 
     </category> 

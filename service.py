@@ -28,16 +28,10 @@ __addon__        = xbmcaddon.Addon('service.progressive.steps')
 __addonid__      = __addon__.getAddonInfo('id')
 __setting__      = __addon__.getSetting
 dialog           = xbmcgui.Dialog()
-script_path       = __addon__.getAddonInfo('path')
+script_path      = __addon__.getAddonInfo('path')
 
-logging    = True if __setting__('logging') == 'true' else False
-maxt  = float(__setting__('maxt')) * 1000000
-delay = float(__setting__('delay')) * 1000000
+logging          = True if __setting__('logging') == 'true' else False
 
-ACTION_STEP_FORWARD           = 20 
-ACTION_STEP_BACK              = 21 
-ACTION_BIG_STEP_FORWARD       = 22 
-ACTION_BIG_STEP_BACK          = 23 
 
 def log(msg, label=''):
 
@@ -106,83 +100,33 @@ class Steps_Monitor(xbmc.Monitor):
 
                                 self.click_action.append((now,step))
 
-                                # if not off_set[1] and off_set[2]:
-                                #     ''' if there are seconds but no minutes then assume a small step'''
-
-                                #     if off_set > 0:
-
-                                #         self.click_action.append((now,'SF'))
-                                #         log('SF')
-
-                                #     else:
-
-                                #         self.click_action.append((now,'SB'))
-                                #         log('SB')
-
-                                # if off_set[1] and not off_set[2]:
-                                #     ''' if there are minutes but no seconds then assume a big step'''
-
-                                #     if off_set > 0:
-
-                                #         self.click_action.append((now,'BF'))
-                                #         log('BF')
-
-                                #     else:
-
-                                #         self.click_action.append((now,'BB'))
-                                #         log('BB')
-
-
 class Main:
 
     def __init__(self):
 
-        self.steps = []
         self.get_set()
 
         self.click_action = []
-        # [(time, action),(time, action),(time, action)]
-
-
-        #Stinky = stinky_pete('dot.xml', script_path, 'Default', click_action = self.click_action, steps = self.steps)
-        #Stinky.show()
-        #Stinky = stinky_pete(xmlfile, scriptPath, 'Default', click_action = self.click_action, steps = self.steps)
-
-
-        # mp = MyPlayer(click_action = self.click_action)
 
         self.SM = Steps_Monitor(updater = self.get_set, click_action = self.click_action)
 
         self._daemon()
-
-        del self.SM
 
 
     def get_set(self):
         ''' updates and integrates the addon settings '''
 
         global logging
-        global maxt
-        global delay
+        setting_ids = ['2s','3s','4s','5s']
 
-        logging    = True if __setting__('logging') == 'true' else False
-        maxt  = float(__setting__('maxt')) * 1000000
-        delay = float(__setting__('delay')) * 1000000
+        logging     = True if __setting__('logging') == 'true' else False
+        self.maxt   = float(__setting__('maxt'))
+        self.delay  = float(__setting__('delay'))
+        self.steps  = [(int(float(__setting__(x))) * 60) if __setting__(x + 'b') == 'true' else 0 for x in setting_ids ] + [0,0,0,0]
 
-        s2 = int(float(__setting__('2s')))
-        s3 = int(float(__setting__('3s')))
-        s4 = int(float(__setting__('4s')))
-        s5 = int(float(__setting__('5s')))
-        b2 = int(float(__setting__('2b')))
-        b3 = int(float(__setting__('3b')))
-        b4 = int(float(__setting__('4b')))
-        b5 = int(float(__setting__('5b')))
-
-        steps_raw = [s2, s3, s4, s5, b2, b3, b4, b5]
-
-        self.steps  = [x * 60 for x in steps_raw]
-
-        log(self.steps, 'steps')
+        log(self.maxt,'setting - maxt')
+        log(self.delay, 'setting - delay')
+        log(self.steps, 'setting - steps')
 
 
     def _action(self):
@@ -209,28 +153,33 @@ class Main:
             if rec_step < 0 :
                 direction = -1
 
-            if rec_step[0] > 60:
-                ''' steps above 60 seconds are considered big else small '''
-                base = 4
+            # if any([rec_step > 60, rec_step < -60]):
+            #     ''' steps above 60 seconds are considered big else small '''
+            #     base = 4
 
-            delta = (self.steps[min(base + count - 1, base + 3)] * direction) - (count * rec_step)
+            step = self.steps[min(base + count - 1, base + 3)] 
 
-            log(delta, 'delta')
 
-            if delta:
+            if step:
 
-                log(xbmc.Player().getTime(), 'got time')
+                delta = (step * direction) - (count * rec_step)
 
-                resume_time = xbmc.Player().getTime() + delta
+                log(delta, 'delta')
 
-                xbmc.Player().seekTime(resume_time) 
+                if delta:
 
-                log('seeked')
+                    gt = xbmc.Player().getTime()
+
+                    resume_time = max(gt + delta, 0)
+
+                    xbmc.Player().seekTime(resume_time) 
+
+                    log('seeked')
 
 
     def delta_conv(self, dTime):
 
-        return dTime.seconds * 1000000 + dTime.microseconds
+        return dTime.seconds + (dTime.microseconds / 1000000.0)
 
 
     def _daemon(self):
@@ -247,15 +196,13 @@ class Main:
                 log('------------')
                 log('---------------')
                 log(self.click_action)
-                log('---------------------')
-                log('--------------------------------')
-                log('-----------------------------------------------')
+
 
                 ''' if the actions are different, remove the actions that dont match the last one '''
 
                 last = 'none'
                 for i, e in reversed(list(enumerate(self.click_action))):
-                    log(i, 'iiiiiiiiii')
+                    log(i, 'item number')
                     log(last)
                     if last == 'none':
                         last = e[1]
@@ -263,51 +210,59 @@ class Main:
                     elif e[1] != last:
                         log('action removed, type')
                         log(self.click_action)
-                        self.click_action = self.click_action[i:]
-                        log(self.click_action)
+                        del self.click_action[: i + 1]
+                    else:
+                        log('item is the same')
 
                 log('------------')
                 log('---------------')
                 log(self.click_action)
 
+                if self.click_action:
 
-                ''' start with the last item, check each previous item to ensure that 
-                they are within the maxt, delete the ones that aren't '''
+                    ''' start with the last item, check each previous item to ensure that 
+                    they are within the maxt, delete the ones that aren't '''
 
-                click_time = self.click_action[-1][0]
-                for i, e in reversed(list(enumerate(self.click_action))):
-                    diff_time = self.delta_conv(click_time - e[0])
-                    if diff_time > maxt:
-                        log('action removed, time')
-                        log(self.click_action)
-                        self.click_action = self.click_action[i:]
-                        log(self.click_action)
-                        break
-                    else:
-                        click_time = e[0]
+                    click_time = self.click_action[-1][0]
+                    for i, e in reversed(list(enumerate(self.click_action))):
 
-                log('--------')
-                log(self.click_action)
+                        diff_time = self.delta_conv(click_time - e[0])
 
-                ''' check the current time against the max time, and action if it is greater than the delay '''
+                        log(diff_time - self.maxt, 'time between clicks')
 
-                click_time = self.click_action[-1][0]
-                diff_time = self.delta_conv(datetime.datetime.now() - click_time)
+                        if diff_time > self.maxt:
 
-                log(diff_time, 'diff time')
-                log(maxt,'delay')
+                            log('action removed, time')
+                            log(self.click_action)
 
-                if diff_time > delay:
-                    log(self.click_action, '_daemon click_action')
-                    self._action()
+                            del self.click_action[: i + 1]
+                            break
 
+                        else:
+                            click_time = e[0]
 
-                    log('click_action cleared')
+                    log('--------')
+                    log(self.click_action)
 
+                    if self.click_action:
 
+                        ''' check the current time against the max time, and action if it is greater than the delay '''
+
+                        click_time = self.click_action[-1][0]
+                        diff_time = self.delta_conv(datetime.datetime.now() - click_time)
+
+                        log(diff_time, 'diff time')
+                        log(self.delay,'delay')
+                        log(diff_time - self.delay, 'time since last click')
+
+                        if diff_time > self.delay:
+
+                            log(self.click_action, '_daemon click_action')
+                            self._action()
+
+                            log('click_action cleared')
 
 
 if __name__ == "__main__":
     Main()
 
-    del Main
